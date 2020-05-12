@@ -45,7 +45,11 @@ app.post('/add-data', (req, res) =>{
                 message : 'Age is empty'
             })
         }else{
-            conn.query('insert into t_user (username_,email_,age) values ("'+username+'","'+email+'",'+age+')', function (error, rows, fields){
+            const q = 'insert into t_user (username_,email_,age) values ('+
+                        conn.escape(username)+','+
+                        conn.escape(email)+','+conn.escape(age)+')'
+                        
+            conn.query(q, function (error, rows, fields){
                 if (error) throw error;
                 res.json({
                     message : 'Success Add Data'
@@ -87,7 +91,10 @@ app.post('/update-data', (req, res) =>{
                 message : 'Age is empty'
             })
         }else{
-            conn.query('update t_user set username_="'+username+'",email_="'+email+'",age='+age+' where id_user='+id_user+'', function (error, rows, fields){
+            conn.query('update t_user set username_='
+                        +conn.escape(username)+',email_='
+                        +conn.escape(email)+',age='+conn.escape(age)+' where id_user='
+                        +conn.escape(id_user)+'', function (error, rows, fields){
                 if (error) throw error;
                 res.json({
                     message : 'Success Update Data'
@@ -115,7 +122,7 @@ app.post('/delete-data', (req, res) =>{
             })
         }
         else{
-            conn.query('delete from t_user where id_user='+id_user+'', function (error, rows, fields){
+            conn.query('delete from t_user where id_user='+conn.escape(id_user)+'', function (error, rows, fields){
                 if (error) throw error;
                 res.json({
                     message : 'Success Delete Data'
