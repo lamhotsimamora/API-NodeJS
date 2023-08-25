@@ -42,6 +42,22 @@ app.post('/data-users', (req, res) => {
     }
 })
 
+app.post('/load-user-byid', (req, res) => {
+    const token_user = req.body.token
+
+    if (token_user === token_ori) {
+        const id_user = req.body.id_user;
+        conn.query(`select * from t_user where id_user=${id_user}`, function(error, rows, fields) {
+            if (error) throw error;
+            res.json(rows);
+        })
+    } else {
+        res.json({
+            message: 'Token Invalid'
+        })
+    }
+})
+
 app.post('/add-data', (req, res) => {
     const token_user = req.body.token
 
