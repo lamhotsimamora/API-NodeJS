@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Express JS</title>
+    <script src="https://cdn.jsdelivr.net/gh/lamhotsimamora/garuda-javascript@master/src/garuda.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/lamhotsimamora/jnet@master/dist/js/jnet.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
@@ -13,17 +14,17 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Home</a>
+            <a class="navbar-brand" href=".">Home</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Profile</a>
+                        <a class="nav-link active" aria-current="page" href="profile.html">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">About</a>
+                        <a class="nav-link" href="about.html">About</a>
                     </li>
 
 
@@ -54,10 +55,13 @@
             <tbody>
                 <tr v-for="(data,i) in data_users">
                     <th scope="row">{{i=i+1}}</th>
-                    <td>{{data.username_}}</td>
+                    <td>
+                        <a :href="viewLink(data.id_user)">{{data.username_}}</a>
+                    </td>
                     <td>{{data.email_}}</td>
                     <td>{{data.age}}</td>
                     <td>
+                        <button class="btn btn-warning btn-md" data-bs-toggle="modal" data-bs-target="#modal_edit" @click="showEdit(data)">Edit</button>
                         <button class="btn btn-danger btn-md" @click="deleteData(data.id_user)">x</button>
                     </td>
                 </tr>
@@ -84,7 +88,7 @@
                     </div>
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Age</span>
-                        <input type="text" class="form-control" placeholder="Age" v-model="age" ref="age" aria-label="Username" aria-describedby="basic-addon1">
+                        <input type="number" class="form-control" placeholder="Age" v-model="age" ref="age" aria-label="Username" aria-describedby="basic-addon1">
                     </div>
 
                 </div>
@@ -96,18 +100,60 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="modal_edit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Username</span>
+                        <input type="text" class="form-control" placeholder="Username" v-model="username" ref="username" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Email</span>
+                        <input type="text" class="form-control" placeholder="Email" v-model="email" ref="email" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Age</span>
+                        <input type="number" class="form-control" placeholder="Age" v-model="age" ref="age" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="update">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
+        const $server = 'http://localhost:8081/';
+
         var app = new Vue({
             el: '#app',
             data: {
                 data_users: null
             },
             methods: {
+                viewLink: function(id_user) {
+                    return './user.html?id=' + id_user;
+                },
+                showEdit: function(data) {
+                    $edit_modal.id_user = data.id_user;
+                    $edit_modal.username = data.username_;
+                    $edit_modal.email = data.email_;
+                    $edit_modal.age = data.age;
+                },
                 deleteData: function(id_user) {
                     const $this = this;
                     jnet({
-                        url: 'http://localhost:8081/delete-data',
+                        url: $server + 'delete-data',
                         method: 'post',
                         data: {
                             token: 'kKKl3NKuXfb6kVg2pp3dcsyWEMjSU0cFbH4cw1xm2pEaJjCe41TP1Ltkfh61fVafm5Ds1Y3jydxMZAOC',
@@ -124,7 +170,7 @@
                 loadData: function() {
                     const $this = this;
                     jnet({
-                        url: 'http://localhost:8081/data-users',
+                        url: $server + 'data-users',
                         method: 'post',
                         data: {
                             token: 'kKKl3NKuXfb6kVg2pp3dcsyWEMjSU0cFbH4cw1xm2pEaJjCe41TP1Ltkfh61fVafm5Ds1Y3jydxMZAOC'
@@ -167,7 +213,7 @@
 
                     const $this = this;
                     jnet({
-                        url: 'http://localhost:8081/add-data',
+                        url: $server + 'add-data',
                         method: 'post',
                         data: {
                             token: 'kKKl3NKuXfb6kVg2pp3dcsyWEMjSU0cFbH4cw1xm2pEaJjCe41TP1Ltkfh61fVafm5Ds1Y3jydxMZAOC',
@@ -183,6 +229,55 @@
                             this.username = null,
                                 this.email = null,
                                 this.age = null
+                        }
+                    })
+                }
+            },
+            mounted() {
+
+            }
+        });
+
+        var $edit_modal = new Vue({
+            el: '#modal_edit',
+            data: {
+                username: null,
+                email: null,
+                age: null,
+                id_user: null
+            },
+            methods: {
+                update: function() {
+                    if (this.username == null) {
+                        this.$refs.username.focus()
+                        return;
+                    }
+                    if (this.email == null) {
+                        this.$refs.email.focus()
+                        return;
+                    }
+                    if (this.age == null) {
+                        this.$refs.age.focus()
+                        return;
+                    }
+
+                    const $this = this;
+                    jnet({
+                        url: $server + 'update-data',
+                        method: 'post',
+                        data: {
+                            token: 'kKKl3NKuXfb6kVg2pp3dcsyWEMjSU0cFbH4cw1xm2pEaJjCe41TP1Ltkfh61fVafm5Ds1Y3jydxMZAOC',
+                            username: this.username,
+                            email: this.email,
+                            age: this.age,
+                            id_user: this.id_user
+                        }
+                    }).request($response => {
+                        let $obj = JSON.parse($response);
+                        if ($obj) {
+                            alert("Data berhasil diubah")
+                            app.loadData()
+
                         }
                     })
                 }
